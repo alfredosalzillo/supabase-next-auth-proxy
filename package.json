@@ -22,10 +22,29 @@
     "check": "biome check --write .",
     "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "supabase",
+    "next.js",
+    "middleware",
+    "auth",
+    "authentication",
+    "proxy",
+    "ssr",
+    "session"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alfredosalzillo/supabase-next-auth-proxy.git"
+  },
+  "author": "alfredo salzillo <alfredosalzillo93@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alfredosalzillo/supabase-next-auth-proxy/issues"
+  },
+  "funding": {
+    "url": "https://github.com/sponsors/alfredosalzillo"
+  },
+  "description": "A proxy utility to integrate Supabase with Next.js Middleware. It helps protect specific routes by checking Supabase session claims and handles redirects for unauthorized access.",
   "devDependencies": {
     "@biomejs/biome": "^2.4.7",
     "@supabase/ssr": "^0.9.0",

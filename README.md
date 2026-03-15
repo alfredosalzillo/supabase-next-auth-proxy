@@ -91,4 +91,4 @@ export async function middleware(request: NextRequest) {
 
 ## License
 
-ISC
+MIT
