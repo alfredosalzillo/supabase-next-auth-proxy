@@ -1,6 +1,18 @@
 # supabase-next-auth-proxy
 
-A proxy utility to integrate Supabase with Next.js Middleware. It helps protect specific routes by checking Supabase session claims and handles redirects for unauthorized access.
+`supabase-next-auth-proxy` is a TypeScript library for integrating Supabase authentication in Next.js middleware/proxy flows.
+
+It provides:
+
+- A default middleware helper to protect routes and handle redirect to sign-in.
+
+## Features
+
+- Middleware-first API for route protection.
+- Automatic request/response cookie synchronization.
+- Configurable protected paths, redirect destination, and `next` query parameter.
+- Built on `@supabase/ssr` and compatible with modern Next.js middleware runtime.
+- Fully typed exports for TypeScript projects.
 
 ## Installation
 
@@ -12,13 +24,30 @@ yarn add supabase-next-auth-proxy @supabase/ssr next
 pnpm add supabase-next-auth-proxy @supabase/ssr next
 ```
 
-Note: `@supabase/ssr` and `next` are required as peer dependencies.
+## Requirements
+
+- `next >= 15.0.0` (peer dependency)
+- `@supabase/ssr >= 0.9.0` (peer dependency)
+
+## Environment variables
+
+The examples assume these variables are available:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+## Exports
+
+This package exports:
+
+- `default` (`auth`) — middleware helper for protecting paths.
+- `AuthProxyOptions` type.
 
 ## Usage
 
-### In Next.js Middleware
+### Route protection with default export
 
-Create a `middleware.ts` file in your project root or `src` folder:
+Create a `middleware.ts` (or `proxy.ts`) file in your project root or `src` folder:
 
 ```typescript
 import auth from "supabase-next-auth-proxy";
@@ -28,7 +57,8 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   const authResponse = await auth(request, response, {
-    protectedPaths: (path) => path.startsWith("/dashboard") || path.startsWith("/profile"),
+    protectedPaths: (path) =>
+      path.startsWith("/dashboard") || path.startsWith("/profile"),
     protectedPathsRedirect: "/login",
     protectedPathsNextParameterName: "next",
     clientOptions: {
@@ -37,7 +67,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // If authResponse is a redirect, return it to intercept the request
+  // If authResponse is set, user is unauthenticated on a protected route.
   if (authResponse) {
     return authResponse;
   }
@@ -50,44 +80,34 @@ export const config = {
 };
 ```
 
-### Direct Proxy Client usage
+## API reference
 
-If you need to create a Supabase client that handles cookies automatically within Next.js Middleware:
+### `auth(request, response, options)`
 
-```typescript
-import { createProxyClient } from "supabase-next-auth-proxy";
-import { type NextRequest, NextResponse } from "next/server";
+Default export.
 
-export async function middleware(request: NextRequest) {
-  const response = NextResponse.next();
-  const client = await createProxyClient(request, response, {
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  });
-  
-  // Use client...
-  
-  return response;
-}
-```
+- **Parameters**
+  - `request: NextRequest`
+  - `response: NextResponse`
+  - `options: AuthProxyOptions`
+- **Returns**: `Promise<NextResponse | null>`
+  - `null` when request can continue.
+  - `NextResponse.redirect(...)` when user is unauthenticated on a protected path.
 
-## Configuration Options
+#### `AuthProxyOptions`
 
-| Option | Type | Description | Default |
-| --- | --- | --- | --- |
-| `protectedPaths` | `(path: string) => boolean` | Function to determine if a path should be protected. | Required |
-| `protectedPathsRedirect` | `string` | Path to redirect to if unauthorized. | `"/login"` |
-| `protectedPathsNextParameterName` | `string` | Query parameter name for the return URL. | `"next"` |
-| `clientOptions.supabaseUrl` | `string` | Your Supabase project URL. | Required |
-| `clientOptions.supabaseKey` | `string` | Your Supabase anon/service_role key. | Required |
-| `clientOptions.auth` | `object` | Optional `@supabase/ssr` auth configuration. | `undefined` |
+| Option | Type | Required | Description | Default |
+| --- | --- | --- | --- | --- |
+| `protectedPaths` | `(path: string) => boolean` | Yes | Function to decide whether the current pathname requires auth. | - |
+| `protectedPathsRedirect` | `string` | No | Redirect pathname for unauthenticated users. | `"/login"` |
+| `protectedPathsNextParameterName` | `string` | No | Query parameter used to store return URL. | `"next"` |
+| `clientOptions` | `{ supabaseUrl: string; supabaseKey: string; auth?: SupabaseClientOptions<"public">["auth"] }` | Yes | Supabase client configuration. | - |
 
-## Features
+## Notes
 
-- [x] Easy Supabase authentication integration in Next.js Middleware.
-- [x] Automatic cookie handling between request and response.
-- [x] Configurable protected paths and redirect behavior.
-- [x] Built on top of `@supabase/ssr` for modern Next.js support.
+- `protectedPaths` receives `request.nextUrl.pathname`.
+- The generated `next` query parameter value is URL-encoded by the library.
+- Keep your middleware `config.matcher` aligned with the paths you intend to protect.
 
 ## License
 
