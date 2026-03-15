@@ -1,0 +1,45 @@
+{
+  "name": "supabase-next-auth-proxy",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.7",
+    "@supabase/ssr": "^0.9.0",
+    "@types/node": "^25.5.0",
+    "next": "^15.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "peerDependencies": {
+    "@supabase/ssr": ">=0.9.0",
+    "next": ">=15.0.0"
+  },
+  "volta": {
+    "node": "24.14.0"
+  }
+}
